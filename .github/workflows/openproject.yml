@@ -47,7 +47,7 @@ jobs:
           aws configure set output json
 
       - name: Terraform Plan
-        run: terraform plan -out=tfplan
+        run: terraform plan 
 
       - name: Upload plan artifact
         uses: actions/upload-artifact@v4
