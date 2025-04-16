@@ -1,4 +1,4 @@
-name: open-project-workflow
+name: Terraform workflow
 
 on:
   workflow_dispatch:
@@ -25,6 +25,15 @@ jobs:
       - name: Terraform Init (reconfigure backend)
         run: terraform init -reconfigure
 
+      - name: Save .terraform directory and state
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-init-data
+          path: |
+            .terraform
+            .terraform.lock.hcl
+            terraform.tfstate
+
   terraform-plan:
     name: Terraform Plan
     runs-on: ubuntu-latest
@@ -43,6 +52,12 @@ jobs:
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws configure set region us-east-1
           aws configure set output json
+
+      - name: Restore init artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: terraform-init-data
+          path: .
 
       - name: Terraform Plan
         run: terraform plan -out=tfplan
@@ -71,6 +86,12 @@ jobs:
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws configure set region us-east-1
           aws configure set output json
+
+      - name: Restore init artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: terraform-init-data
+          path: .
 
       - name: Download plan artifact
         uses: actions/download-artifact@v4
