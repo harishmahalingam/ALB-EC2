@@ -1,4 +1,4 @@
-name: Terraform workflow
+name: open-project-workflow
 
 on:
   workflow_dispatch:
@@ -7,8 +7,6 @@ jobs:
   terraform-init:
     name: Terraform Init
     runs-on: ubuntu-latest
-    outputs:
-      tf-cache: ${{ steps.cache.outputs.cache-hit }}
 
     steps:
       - name: Checkout code
@@ -24,8 +22,8 @@ jobs:
           aws configure set region us-east-1
           aws configure set output json
 
-      - name: Terraform Init
-        run: terraform init
+      - name: Terraform Init (reconfigure backend)
+        run: terraform init -reconfigure
 
   terraform-plan:
     name: Terraform Plan
@@ -47,7 +45,7 @@ jobs:
           aws configure set output json
 
       - name: Terraform Plan
-        run: terraform plan 
+        run: terraform plan -out=tfplan
 
       - name: Upload plan artifact
         uses: actions/upload-artifact@v4
@@ -81,4 +79,4 @@ jobs:
           path: .
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve
+        run: terraform apply -auto-approve tfplan
